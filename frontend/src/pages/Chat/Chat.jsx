@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useRef } from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import { Container } from '@mui/material';
@@ -6,13 +6,16 @@ import { Container } from '@mui/material';
 const Chat = ({ socket }) => {
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
+  const handshakeSent = useRef(false);
 
   useEffect(() => {
     if (!socket) return;
     
-    // Log when the socket is connected
-    console.log('Socket connected');
-    socket.emit('handshake');
+    if (!handshakeSent.current) {
+      console.log('Sending handshake');
+      socket.emit('handshake');
+      handshakeSent.current = true;
+    }
 
     // Define the handler function for incoming messages
     const handleMessage = (msg) => {
@@ -33,7 +36,7 @@ const Chat = ({ socket }) => {
       socket.off('message', handleMessage);
     };
     
-  }, []);
+  }, [socket]);
 
   const handleSend = async (message) => {
     const newMessage = {
