@@ -14,7 +14,10 @@ const StartChat = ({ onStartChat }) => {
       const socket = await initializeSocket();
 
       if (socket.connected) {
-        onStartChat(socket);
+        socket.emit('startSession');
+        socket.on('sessionStarted', ({ sessionId }) => {
+          onStartChat(socket, sessionId);
+        });
       } else {
         setError('Could not connect to the server. Please try again later.');
       }

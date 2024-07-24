@@ -3,7 +3,7 @@ import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import { Container } from '@mui/material';
 
-const Chat = ({ socket }) => {
+const Chat = ({ socket, sessionId }) => {
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
   const handshakeSent = useRef(false);
@@ -13,7 +13,7 @@ const Chat = ({ socket }) => {
     
     if (!handshakeSent.current) {
       console.log('Sending handshake');
-      socket.emit('handshake');
+      socket.emit('handshake', sessionId);
       handshakeSent.current = true;
     }
 
@@ -50,7 +50,7 @@ const Chat = ({ socket }) => {
     setMessages((prevMessages) => [...prevMessages, newMessage]);
 
     // Emit the message to the server
-    socket.emit('message', newMessage);
+    socket.emit('message', sessionId, newMessage);
 
     // Turn on the typing indicator
     setTyping(true);

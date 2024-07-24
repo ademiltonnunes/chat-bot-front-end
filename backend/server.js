@@ -9,9 +9,10 @@ import { v4 as uuidv4 } from 'uuid';
 dotenv.config();
 
 // Loading values for system variables
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8080;
 const API_KEY = process.env.API_KEY;
-
+// Setting up time out for the chat
+const SESSION_TIMEOUT = process.env.SESSION_TIMEOUT || 30;
 
 // Create a server to serve the frontend
 const app = express();
@@ -24,42 +25,118 @@ const io = new Server(server, {
   }
 });
 
-// 
+// Store active sessions
+const sessions = {};
+
+// Check session timeout
+// const checkSessionTimeout = () => {
+//   const now = new Date();
+//   Object.keys(sessions).forEach(sessionId => {
+//     const session = sessions[sessionId];
+//     if (!session.endTime && (now - new Date(session.startTime)) / (1000 * 60) > session.timeout) {
+//       session.endTime = now;
+//       io.to(session.socketId).emit('sessionTimeout', { sessionId });
+//       console.log(`Session timed out: ${sessionId}`);
+//     }
+//   });
+// };
+
+// Calls that can be made when the user is connected
 io.on('connection', (socket) => {
   console.log('User connected');
 
+  // Start sessions
+  socket.on('startSession', () => {
+    // Generate a new session ID
+    const sessionId = uuidv4();
+
+    // Store the session
+    sessions[sessionId] = {
+      startTime: new Date(),
+      endTime: null,
+      timeout: SESSION_TIMEOUT,
+      socketId: socket.id,
+      messages: []
+    };
+
+    // Emit the session ID to the client
+    socket.emit('sessionStarted', { sessionId });
+    console.log(`Session started: ${sessionId}`);
+  });
+
+  // End sessions we set the end time of the session
+  socket.on('endSession', (sessionId) => {
+    if (sessions[sessionId]) {
+      sessions[sessionId].endTime = new Date();
+      console.log(`Session ended: ${sessionId} in ${sessions[sessionId].endTime} `);
+      socket.emit('sessionEnded', { sessionId });
+    } else {
+      socket.emit('error', { message: 'Session not found' });
+    }
+  });
+
   // Listen for handshake event
-  socket.on('handshake', () => {
-    console.log('Handshake event received');
-    socket.emit('message', {
+  socket.on('handshake', (sessionId) => {
+    if (!sessions[sessionId]) {
+      console.log('Session not found - handshake');
+      socket.emit('error', { message: 'Session not found' });
+      return;
+    }
+
+    const message = {
       message: 'Hello! How can I help you today?',
       date: new Date(),
       sender: "ChatGPT"
-    });
+    };
+    sessions[sessionId].messages.push(message);
+
+    console.log('Handshake event received');
+    socket.emit('message', message);
   });
 
   // Listen to incoming messages
-  socket.on('message', async (msg) => {
+  socket.on('message', async (sessionId, msg) => {
+    if (!sessions[sessionId]) {
+      console.log('Session not found - messaging');
+      socket.emit('error', { message: 'Session not found' });
+      return;
+    }
+
+    // Store the message
+    sessions[sessionId].messages.push(msg);
     console.log('Received message:', msg.message);
 
     // Process message to ChatGPT
     const response = await processMessage(msg);
-    io.emit('message', {
+
+    // Get the response message
+    const responseMessage = {
       message: response,
       date: new Date(),
       sender: 'ChatGPT'
-    });
+    };
+
+    // Store the response
+    sessions[sessionId].messages.push(responseMessage);
+
+    io.emit('message', responseMessage);
   });
 
-  socket.on('endChat', () => {
-    console.log('Chat ended');
-    socket.disconnect();
-  });
+  // socket.on('endChat', () => {
+  //   console.log('Chat ended');
+  //   socket.disconnect();
+  // });
 
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
 });
+
+app.get('/sessions', (req, res) => {
+  res.json(sessions);
+});
+
+// setInterval(checkSessionTimeout, 60000); // Check for timeouts every minute
 
 
 const processMessage = async (chatMessage) => {

@@ -42,3 +42,33 @@ export const disconnectSocket = () => {
     socket = null;
   }
 };
+
+export const startSession = (socket) => {
+  return new Promise((resolve, reject) => {
+    socket.emit('startSession', () => {
+      socket.on('sessionStarted', (data) => {
+        resolve(data.sessionId);
+      });
+
+      socket.on('error', (err) => {
+        reject(err);
+      });
+    });
+  });
+};
+
+export const endSession = (socket, sessionId) => {
+  return new Promise((resolve, reject) => {
+    socket.emit('endSession', sessionId, () => {
+      socket.on('sessionEnded', () => {
+        console.log('Session ended event received'); // Debug log
+        resolve();
+      });
+
+      socket.on('error', (err) => {
+        console.error('Error ending session:', err); // Debug log
+        reject(err);
+      });
+    });
+  });
+};
