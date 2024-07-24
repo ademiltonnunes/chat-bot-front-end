@@ -43,32 +43,27 @@ export const disconnectSocket = () => {
   }
 };
 
-export const startSession = (socket) => {
+export const startSession = () => {
   return new Promise((resolve, reject) => {
-    socket.emit('startSession', () => {
-      socket.on('sessionStarted', (data) => {
-        resolve(data.sessionId);
-      });
-
-      socket.on('error', (err) => {
-        reject(err);
-      });
+    socket.emit('startSession');
+    socket.on('sessionStarted', (data) => {
+      resolve(data.sessionId);
+    });
+    socket.on('error', (err) => {
+      reject(err);
     });
   });
 };
 
-export const endSession = (socket, sessionId) => {
+export const endSession = (sessionId) => {
   return new Promise((resolve, reject) => {
-    socket.emit('endSession', sessionId, () => {
-      socket.on('sessionEnded', () => {
-        console.log('Session ended event received'); // Debug log
-        resolve();
-      });
-
-      socket.on('error', (err) => {
-        console.error('Error ending session:', err); // Debug log
-        reject(err);
-      });
+    socket.emit('endSession', sessionId);
+    socket.on('sessionEnded', () => {
+      resolve();
+    });
+    socket.on('error', (err) => {
+      reject(err);
     });
   });
 };
+

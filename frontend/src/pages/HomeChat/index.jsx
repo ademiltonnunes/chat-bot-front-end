@@ -1,45 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { Typography, Container } from '@mui/material';
 import StartChat from '../../components/Chat/StartChat';
 import Chat from '../Chat';
 import EndChat from '../../components/Chat/EndChat';
-import { disconnectSocket , endSession} from '../../api/sessions';
+import {
+  initializeSocket,
+  getSocket,
+  disconnectSocket,
+  startSession,
+  endSession,} from '../../api/sessions';
 
 const HomeChat = () => {
   const [chatStarted, setChatStarted] = useState(false);
   const [socket, setSocket] = useState(null);
   const [sessionId, setSessionId] = useState(null);
+  const [error, setError] = useState('');
 
-  const handleStartChat = (socket, sessionId) => {
+  useEffect(() => {
+    // Initialize the socket connection
+    initializeSocket()
+      .then((socketInstance) => {
+        setSocket(socketInstance);
+      })
+      .catch((err) => {
+        setError('Could not connect to the server. Please try again later.');
+        console.error('Socket initialization error:', err);
+      });
 
-    console.log('Chat started with session ID:', sessionId); // Debug log
+    return () => {
+      disconnectSocket();
+    };
+  }, []);
 
-    // Set socket connection
-    setSocket(socket);
-    // Set current session ID
-    setSessionId(sessionId);
+  const handleStartChat = async () => {
+    try {
+      const socketInstance = getSocket();
+      if (socketInstance.disconnectSocket) {
+        setError('Could not connect to the server. Please try again later.');
+        return;
+      }
 
-    // Start the chat
-    setChatStarted(true);
+      const id = await startSession();
+      setSessionId(id);
+      setChatStarted(true);
+    } catch (err) {
+      setError('Error starting session:');
+      console.error('Error starting session:', err);
+    }
   };
 
   const handleEndChat = () => {
-    console.log('End chat button clicked'); // Debug log
-  
-    if (sessionId) {
-      endSession(socket, sessionId);
+    try {
+      if (sessionId) {
+        endSession(sessionId);
+        setSessionId(null);
+      }
+
+      // End the chat
+      setChatStarted(false);
     }
-  
-    // End socket connection
-    disconnectSocket();
-    setSocket(null);
-  
-    // End the chat
-    setChatStarted(false);
+    catch (err) {
+      setError('Error ending session');
+      console.error('Error ending session:', err);
+    }
   };
-  
+
   return (
     <div>
+      {error && <Typography color="error">{error}</Typography>}
       {chatStarted ? 
         (
           <>

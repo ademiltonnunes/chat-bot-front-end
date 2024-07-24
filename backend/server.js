@@ -29,17 +29,27 @@ const io = new Server(server, {
 const sessions = {};
 
 // Check session timeout
-// const checkSessionTimeout = () => {
-//   const now = new Date();
-//   Object.keys(sessions).forEach(sessionId => {
-//     const session = sessions[sessionId];
-//     if (!session.endTime && (now - new Date(session.startTime)) / (1000 * 60) > session.timeout) {
-//       session.endTime = now;
-//       io.to(session.socketId).emit('sessionTimeout', { sessionId });
-//       console.log(`Session timed out: ${sessionId}`);
-//     }
-//   });
-// };
+const checkSessionTimeout = () => {
+  const now = new Date();
+
+  // Filter sessions to include only those with endTime as null
+  const activeSessions = Object.keys(sessions).filter(sessionId => !sessions[sessionId].endTime);
+
+  activeSessions.forEach(sessionId => {
+    const session = sessions[sessionId];
+    const sessionDuration = (now - new Date(session.startTime)) / (1000 * 60);
+
+    // Check if the session has timed out
+    if (sessionDuration > session.timeout) {
+      session.endTime = now;  // End the session
+      io.to(session.socketId).emit('sessionTimeout', { sessionId });
+      console.log(`Session timed out: ${sessionId}`);
+    }
+  });
+};
+
+setInterval(checkSessionTimeout, 60000); // Check for timeouts every minute
+
 
 // Calls that can be made when the user is connected
 io.on('connection', (socket) => {
@@ -121,22 +131,12 @@ io.on('connection', (socket) => {
 
     io.emit('message', responseMessage);
   });
-
-  // socket.on('endChat', () => {
-  //   console.log('Chat ended');
-  //   socket.disconnect();
-  // });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
 });
 
 app.get('/sessions', (req, res) => {
   res.json(sessions);
 });
 
-// setInterval(checkSessionTimeout, 60000); // Check for timeouts every minute
 
 
 const processMessage = async (chatMessage) => {
