@@ -3,9 +3,11 @@ import http from 'http';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import { v4 as uuidv4 } from 'uuid';
 
 // Load environment variables from .env file
 dotenv.config();
+
 // Loading values for system variables
 const PORT = process.env.PORT;
 const API_KEY = process.env.API_KEY;
@@ -22,6 +24,7 @@ const io = new Server(server, {
   }
 });
 
+// 
 io.on('connection', (socket) => {
   console.log('User connected');
 

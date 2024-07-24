@@ -1,46 +1,88 @@
-import React, { useState } from 'react';
-import StartChat from './StartChat';
-import Chat from './Chat';
-import EndChat from './EndChat';
-import { disconnectSocket } from '../../api/sessions';
+import React, { useState, useEffect , useRef } from 'react';
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
+import { Container } from '@mui/material';
 
-const ChatPage = () => {
-  const [chatStarted, setChatStarted] = useState(false);
-  const [socket, setSocket] = useState(null);
+const Chat = ({ socket }) => {
+  const [messages, setMessages] = useState([]);
+  const [typing, setTyping] = useState(false);
+  const handshakeSent = useRef(false);
 
-  const handleStartChat = (socket) => {
+  useEffect(() => {
+    if (!socket) return;
+    
+    if (!handshakeSent.current) {
+      console.log('Sending handshake');
+      socket.emit('handshake');
+      handshakeSent.current = true;
+    }
 
-    // Set socket connection
-    setSocket(socket);
+    // Define the handler function for incoming messages
+    const handleMessage = (msg) => {
+      console.log('Received message from server:', msg); // Debug log
+      const incomingMessage = {
+        ...msg,
+        direction: msg.sender === 'ChatGPT' ? 'incoming' : 'outgoing'
+      };
+      setMessages((prevMessages) => [...prevMessages, incomingMessage]);
+      setTyping(false);
+    };
 
-    // Start the chat
-    setChatStarted(true);
-  };
+    // Attach the event listener
+    socket.on('message', handleMessage);
 
-  const handleEndChat = () => {
+    // Cleanup function to remove the event listener
+    return () => {
+      socket.off('message', handleMessage);
+    };
+    
+  }, [socket]);
 
-    // End socket connection
-    disconnectSocket();
-    setSocket(null);
+  const handleSend = async (message) => {
+    const newMessage = {
+      message: message,
+      date: new Date(),
+      sender: "User",
+      direction: "outgoing"
+    };
 
-    // End the chat
-    setChatStarted(false);
+    // Update the state with the new message
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    // Emit the message to the server
+    socket.emit('message', newMessage);
+
+    // Turn on the typing indicator
+    setTyping(true);
   };
 
   return (
-    <div>
-      {chatStarted ? 
-        (
-          <>
-            <Chat socket={socket} />
-            <EndChat onEndChat={handleEndChat} />
-          </>
-        ) 
-        : 
-        (<StartChat onStartChat={handleStartChat} />)
-      }
-    </div>
+    <Container maxWidth="sm" style={{ textAlign: 'center', marginTop: '50px' }}>
+      <div style={{ position: "center", height: "700px", width: "700px" }}>
+        <MainContainer>
+          <ChatContainer>
+            <MessageList
+              scrollBehavior='smooth'
+              typingIndicator={typing ? <TypingIndicator content="Chat GPT is typing..." /> : null}
+            >
+              {messages.map((message, index) => (
+                <Message
+                  key={index}
+                  model={{
+                    message: message.message,
+                    date: message.date,
+                    sender: message.sender,
+                    direction: message.direction
+                  }}
+                />
+              ))}
+            </MessageList>
+            <MessageInput placeholder="Type a message..." onSend={handleSend} />
+          </ChatContainer>
+        </MainContainer>
+      </div>
+    </Container>
   );
 };
 
-export default ChatPage;
+export default Chat;

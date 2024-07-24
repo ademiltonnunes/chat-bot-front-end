@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Typography, Container } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import { initializeSocket } from '../../api/sessions';
 
 const StartChat = ({ onStartChat }) => {
@@ -26,10 +26,7 @@ const StartChat = ({ onStartChat }) => {
   };
 
   return (
-    <Container maxWidth="sm" style={{ textAlign: 'center', marginTop: '50px' }}>
-      <Typography variant="h3" component="h1" gutterBottom>
-        Welcome to Our Chatbot
-      </Typography>
+    <>
       {error && <Typography color="error">{error}</Typography>}
       <Button
         variant="contained"
@@ -39,7 +36,7 @@ const StartChat = ({ onStartChat }) => {
       >
         {isLoading ? 'Connecting...' : 'Start Chat'}
       </Button>
-    </Container>
+    </>
   );
 };
 
