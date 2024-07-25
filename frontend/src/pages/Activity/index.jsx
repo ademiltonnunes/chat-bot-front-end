@@ -32,7 +32,7 @@ const ActivityPage = ({ onBack }) => {
     });
 
     return Object.entries(sessionCounts)
-      .map(([date, count]) => ({ date, count }))
+      .map(([date, session_count]) => ({ date, session_count }))
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [allSessions]);
 
@@ -53,7 +53,7 @@ const ActivityPage = ({ onBack }) => {
       <Box height="calc(100% - 60px)">
         <ResponsiveBar
           data={activityData}
-          keys={['count']}
+          keys={['session_count']}
           indexBy="date"
           margin={{ top: 50, right: 130, bottom: 70, left: 60 }}
           padding={0.3}
