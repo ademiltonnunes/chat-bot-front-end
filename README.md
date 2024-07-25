@@ -1,70 +1,86 @@
-# Getting Started with Create React App
+# Chatbot UI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
+Chatbot UI is a React-based web application that provides a user-friendly interface for interacting with a chatbot. It includes features such as real-time chat, session management, and activity visualization.
 
-## Available Scripts
+## Features
+- Real-time chat interface
+- Session management (start, end, and view past sessions)
+- Activity visualization showing chat session frequency
+- Responsive design for desktop and mobile use
 
-In the project directory, you can run:
+## Technologies Used
+- React.js
+- Material-UI for styling
+- Socket.io for real-time communication
+- Nivo for data visualization
 
-### `npm start`
+## Prerequisites
+Before you begin, ensure you have met the following requirements:
+- Node.js (v14.0.0 or later)
+- npm (v6.0.0 or later)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Chatbot UI
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Prerequisites
+Before you begin, ensure you have the following installed:
+- Node.js (v14.0.0 or later)
+- npm (v6.0.0 or later)
 
-### `npm test`
+You can download and install Node.js and npm from [https://nodejs.org/](https://nodejs.org/)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## OpenAI API Key
+This project requires an OpenAI API key to function. Follow these steps to obtain and configure your API key:
 
-### `npm run build`
+1. Sign up for an account at [https://openai.com/](https://openai.com/)
+2. Navigate to the API section and create a new API key
+3. Copy your API key
+4. In the project's root directory, create a file named `.env` if it doesn't exist
+5. Add the following line to the `.env` file:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+  REACT_APP_OPENAI_API_KEY=your_api_key_here
+```
+Replace `your_api_key_here` with the API key you copied from OpenAI
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Note:** Never share your API key publicly or commit it to version control.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Overview
+...
 
-### `npm run eject`
+## Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Clone the repository:
+   ```
+     git clone https://github.com/your-username/chatbot-ui.git
+   ```
+2. Navigate to the project directory:
+  ```
+   cd chatbot-ui
+  ```
+3. Install the dependencies:
+   ```
+    npm install
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Configuration
+1. Create a `.env` file in the root directory.
+2. Add the following environment variables:
+REACT_APP_SOCKET_URL=http://localhost:8080
+Replace the URL with your backend server URL if different.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Running the Application
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. Start the development server:
+   ```
+    npm start
+   ```
+2. Open your browser and visit `http://localhost:3000`
 
-## Learn More
+## Usage
+- Click on "Start New Chat" to begin a chat session.
+- Use the input field at the bottom to send messages.
+- Click "End Chat" to terminate the current session.
+- Click "See Activity" to view a chart of chat session frequency.
+- The left sidebar displays all active and ended sessions.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
