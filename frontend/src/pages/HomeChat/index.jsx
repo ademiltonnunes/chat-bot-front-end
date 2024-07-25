@@ -2,10 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Typography, Container, Grid, CircularProgress, Paper, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Chat from '../Chat';
-import StartChat from '../../components/Chat/StartChat';
-import EndChat from '../../components/Chat/EndChat';
+import StartChat from '../../components/Chat/StartChatButton';
+import EndChat from '../../components/Chat/EndChatButton';
 import BackButton from '../../components/Chat/BackButton'; 
 import SessionList from '../../components/Chat/SessionList';
+import SeeActivityButton from '../../components/Chat/SeeActivityButton';
+import ActivityPage from '../Activity';
 import {
   initializeSocket,
   getSocket,
@@ -29,6 +31,7 @@ const HomeChat = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshSessionList, setRefreshSessionList] = useState(0);
   const [isNewChat, setIsNewChat] = useState(false);
+  const [showActivity, setShowActivity] = useState(false);
 
   useEffect(() => {
     initializeSocket()
@@ -88,7 +91,12 @@ const HomeChat = () => {
     setIsNewChat(false);
   };
 
+  const handleSeeActivity = useCallback(() => {
+    setShowActivity(true);
+  }, []);
+
   const handleBack = () => {
+    setShowActivity(false);
     setChatStarted(false);
   };
 
@@ -126,17 +134,19 @@ const HomeChat = () => {
               <>
                <Box display="flex" justifyContent="space-between" mb={2}>
                 <BackButton onClick={handleBack} />
-                {/* <Button variant="outlined" onClick={handleBack}>Back</Button> */}
                 <EndChat onEndChat={handleEndChat} />
               </Box>
               <Box flexGrow={1} overflow="auto">
                 <Chat socket={socket} sessionId={sessionId} isNewChat={isNewChat} />
               </Box>
               </>
+             ) : showActivity ? (
+              <ActivityPage onBack={handleBack} />
             ) : (
-              <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                <StartChat onStartChat={handleStartChat} />
-              </Box>
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100%">
+              <StartChat onStartChat={handleStartChat} />
+              <SeeActivityButton onClick={handleSeeActivity} />
+            </Box>
             )}
           </StyledPaper>
         </Grid>
