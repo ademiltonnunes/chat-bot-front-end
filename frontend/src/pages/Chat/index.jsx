@@ -2,7 +2,7 @@ import React, { useState, useEffect , useRef } from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 
-const Chat = ({ socket, sessionId }) => {
+const Chat = ({ socket, sessionId, isNewChat }) => {
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
   const handshakeSent = useRef(false);
@@ -10,7 +10,7 @@ const Chat = ({ socket, sessionId }) => {
   useEffect(() => {
     if (!socket || !sessionId) return;
     
-    if (!handshakeSent.current) {
+    if (isNewChat && !handshakeSent.current) {
       console.log('Sending handshake');
       socket.emit('handshake', sessionId);
       handshakeSent.current = true;
@@ -49,7 +49,7 @@ const Chat = ({ socket, sessionId }) => {
       socket.off('message', handleMessage);
     };
     
-  }, [socket, sessionId]);
+  }, [socket, sessionId, isNewChat]);
 
   const handleSend = async (message) => {
     const newMessage = {

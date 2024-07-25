@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Typography, Container, Grid, CircularProgress, Paper, Box, Button } from '@mui/material';
+import { Typography, Container, Grid, CircularProgress, Paper, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Chat from '../Chat';
 import StartChat from '../../components/Chat/StartChat';
@@ -28,6 +28,7 @@ const HomeChat = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [refreshSessionList, setRefreshSessionList] = useState(0);
+  const [isNewChat, setIsNewChat] = useState(false);
 
   useEffect(() => {
     initializeSocket()
@@ -57,6 +58,7 @@ const HomeChat = () => {
       const id = await startSession();
       setSessionId(id);
       setChatStarted(true);
+      setIsNewChat(true);
       setRefreshSessionList(prev => prev + 1);
     } catch (err) {
       setError('Error starting session:');
@@ -73,9 +75,7 @@ const HomeChat = () => {
 
       setChatStarted(false);
       setRefreshSessionList(prev => prev + 1);
-      
-      const socket = getSocket();
-      socket.emit('getAllSessions');
+    
     } catch (err) {
       setError('Error ending session');
       console.error('Error ending session:', err);
@@ -85,6 +85,7 @@ const HomeChat = () => {
   const handleSessionSelect = (selectedSessionId) => {
     setSessionId(selectedSessionId);
     setChatStarted(true);
+    setIsNewChat(false);
   };
 
   const handleBack = () => {
@@ -129,7 +130,7 @@ const HomeChat = () => {
                 <EndChat onEndChat={handleEndChat} />
               </Box>
               <Box flexGrow={1} overflow="auto">
-                <Chat socket={socket} sessionId={sessionId} />
+                <Chat socket={socket} sessionId={sessionId} isNewChat={isNewChat} />
               </Box>
               </>
             ) : (
