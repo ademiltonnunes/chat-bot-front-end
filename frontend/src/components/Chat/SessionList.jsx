@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { List, ListItem, ListItemText, Typography, Paper, Divider, Box } from '@mui/material';
+import { List, ListItem, ListItemText, Typography, Paper, Box } from '@mui/material';
 import { getSocket } from '../../api/sessions';
 
 const SessionList = ({ onSessionSelect, refreshTrigger }) => {
@@ -23,9 +23,12 @@ const SessionList = ({ onSessionSelect, refreshTrigger }) => {
     };
   }, [refreshTrigger]);
 
-  const renderSessions = (sessions, isActive) => (
+  const renderSessions = (sessions, isActive) => {
+    const sortedSessions = Object.entries(sessions).sort((a, b) => new Date(b[1].startTime) - new Date(a[1].startTime));
+    
+    return (
     <List>
-      {Object.entries(sessions).map(([id, session]) => (
+      {sortedSessions.map(([id, session]) => (
         <ListItem button key={id} onClick={() => onSessionSelect(id)}>
           <ListItemText 
             primary={`Session ${id.slice(0, 8)}...`}
@@ -34,10 +37,11 @@ const SessionList = ({ onSessionSelect, refreshTrigger }) => {
         </ListItem>
       ))}
     </List>
-  );
+    )
+};
 
   return (
-    <Paper elevation={3} style={{ maxHeight: '400px', overflow: 'auto', marginBottom: '20px' }}>
+    <Paper elevation={3} style={{ height: '400px', overflow: 'auto' }}>
       <Box p={2}>
         <Typography variant="h6" gutterBottom>Active Sessions</Typography>
         {Object.keys(activeSessions).length > 0 ? (
@@ -45,8 +49,7 @@ const SessionList = ({ onSessionSelect, refreshTrigger }) => {
         ) : (
           <Typography>No active sessions</Typography>
         )}
-        <Divider style={{ margin: '16px 0' }} />
-        <Typography variant="h6" gutterBottom>Ended Sessions</Typography>
+        <Typography variant="h6" gutterBottom style={{ marginTop: '16px' }}>Ended Sessions</Typography>
         {Object.keys(endedSessions).length > 0 ? (
           renderSessions(endedSessions, false)
         ) : (

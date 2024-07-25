@@ -1,7 +1,6 @@
 import React, { useState, useEffect , useRef } from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
-import { Container } from '@mui/material';
 
 const Chat = ({ socket, sessionId }) => {
   const [messages, setMessages] = useState([]);
@@ -71,31 +70,30 @@ const Chat = ({ socket, sessionId }) => {
   };
 
   return (
-    <Container maxWidth="sm" style={{ textAlign: 'center', marginTop: '50px' }}>
-      <div style={{ position: "center", height: "700px", width: "700px" }}>
-        <MainContainer>
-          <ChatContainer>
-            <MessageList
-              scrollBehavior='smooth'
-              typingIndicator={typing ? <TypingIndicator content="Chat GPT is typing..." /> : null}
-            >
-              {messages.map((message, index) => (
-                <Message
-                  key={index}
-                  model={{
-                    message: message.message,
-                    date: message.date,
-                    sender: message.sender,
-                    direction: message.direction
-                  }}
-                />
-              ))}
-            </MessageList>
-            <MessageInput placeholder="Type a message..." onSend={handleSend} />
-          </ChatContainer>
-        </MainContainer>
-      </div>
-    </Container>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <MainContainer style={{ flexGrow: 1 }}>
+        <ChatContainer>
+          <MessageList
+            scrollBehavior='smooth'
+            typingIndicator={typing ? <TypingIndicator content="Chat GPT is typing..." /> : null}
+          >
+            {messages.map((message, index) => (
+              <Message
+                key={index}
+                model={{
+                  message: message.message,
+                  sentTime: message.date,
+                  sender: message.sender,
+                  direction: message.direction,
+                  position: "single"
+                }}
+              />
+            ))}
+          </MessageList>
+          <MessageInput placeholder="Type a message..." onSend={handleSend} />
+        </ChatContainer>
+      </MainContainer>
+    </div>
   );
 };
 

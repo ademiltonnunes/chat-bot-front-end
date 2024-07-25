@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Typography, Container, Grid, CircularProgress, Paper, Box } from '@mui/material';
+import { Typography, Container, Grid, CircularProgress, Paper, Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import StartChat from '../../components/Chat/StartChat';
 import Chat from '../Chat';
@@ -15,7 +15,7 @@ import {
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
-  height: '100%',
+  height: '500px',
   display: 'flex',
   flexDirection: 'column',
 }));
@@ -86,6 +86,10 @@ const HomeChat = () => {
     setChatStarted(true);
   };
 
+  const handleBack = () => {
+    setChatStarted(false);
+  };
+
   if (isLoading) {
     return (
       <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -118,10 +122,13 @@ const HomeChat = () => {
           <StyledPaper elevation={3}>
             {chatStarted ? (
               <>
-                <Box display="flex" justifyContent="flex-end" mb={2}>
-                  <EndChat onEndChat={handleEndChat} />
-                </Box>
+               <Box display="flex" justifyContent="space-between" mb={2}>
+                <Button variant="outlined" onClick={handleBack}>Back</Button>
+                <EndChat onEndChat={handleEndChat} />
+              </Box>
+              <Box flexGrow={1} overflow="auto">
                 <Chat socket={socket} sessionId={sessionId} />
+              </Box>
               </>
             ) : (
               <Box display="flex" justifyContent="center" alignItems="center" height="100%">
