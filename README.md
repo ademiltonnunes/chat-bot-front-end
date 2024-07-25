@@ -104,5 +104,5 @@ This project requires an OpenAI API key to function. Follow these steps to obtai
 - Click "End Chat" to terminate the current session.
 - Click "See Activity" to view a chart of chat session frequency.
 - The left sidebar displays all active and ended sessions.
-Please, watch the video on this link to see more usage details.
+Please, watch the video on this [link](https://www.loom.com/share/b72d147859a747a58f48f8abd626f40d?sid=dadcd91a-4878-40b5-a322-69cde30051f1) to see more usage details.
 
