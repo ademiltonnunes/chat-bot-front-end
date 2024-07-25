@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Typography, Container, Grid, CircularProgress, Paper, Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import StartChat from '../../components/Chat/StartChat';
 import Chat from '../Chat';
+import StartChat from '../../components/Chat/StartChat';
 import EndChat from '../../components/Chat/EndChat';
+import BackButton from '../../components/Chat/BackButton'; 
 import SessionList from '../../components/Chat/SessionList';
 import {
   initializeSocket,
@@ -123,7 +124,8 @@ const HomeChat = () => {
             {chatStarted ? (
               <>
                <Box display="flex" justifyContent="space-between" mb={2}>
-                <Button variant="outlined" onClick={handleBack}>Back</Button>
+                <BackButton onClick={handleBack} />
+                {/* <Button variant="outlined" onClick={handleBack}>Back</Button> */}
                 <EndChat onEndChat={handleEndChat} />
               </Box>
               <Box flexGrow={1} overflow="auto">
