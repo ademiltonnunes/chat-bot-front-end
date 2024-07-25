@@ -55,7 +55,7 @@ const ActivityPage = ({ onBack }) => {
           data={activityData}
           keys={['count']}
           indexBy="date"
-          margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+          margin={{ top: 50, right: 130, bottom: 70, left: 60 }}
           padding={0.3}
           valueScale={{ type: 'linear' }}
           indexScale={{ type: 'band', round: true }}
@@ -63,7 +63,7 @@ const ActivityPage = ({ onBack }) => {
           axisBottom={{
             tickSize: 5,
             tickPadding: 5,
-            tickRotation: -45,
+            tickRotation: 0,
             legend: 'Date',
             legendPosition: 'middle',
             legendOffset: 32
@@ -74,7 +74,7 @@ const ActivityPage = ({ onBack }) => {
             tickRotation: 0,
             legend: 'Number of Sessions',
             legendPosition: 'middle',
-            legendOffset: -40
+            legendOffset: 60
           }}
           labelSkipWidth={12}
           labelSkipHeight={12}
