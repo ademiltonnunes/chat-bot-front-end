@@ -2,7 +2,7 @@
 
 ## Overview
 Chatbot UI is a React-based web application offering a user-friendly interface for AI chatbot interactions. It features real-time chat, session management, and activity visualization. While the project focuses on frontend development, it includes a backend server for testing and demonstration purposes. The backend manages WebSocket communication, AI integration, session handling, and message storage.
-Please take a look at our slide presentation for a detailed project architecture and feature breakdown [insert link here].
+Please take a look at our slide presentation for a detailed project architecture and feature breakdown [link here](https://pitch.com/v/cosmochat-ui-fsvuef).
 
 ## Features
 - Real-time chat functionality
