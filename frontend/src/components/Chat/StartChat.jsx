@@ -1,12 +1,12 @@
-import {useState} from 'react';
-import { Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Button, CircularProgress } from '@mui/material';
 
 const StartChat = ({ onStartChat }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStartChat = async () => {
     setIsLoading(true);
-    onStartChat();
+    await onStartChat();
     setIsLoading(false);
   }
 
@@ -15,8 +15,10 @@ const StartChat = ({ onStartChat }) => {
       variant="contained"
       color="primary"
       onClick={handleStartChat}
+      disabled={isLoading}
+      size="large"
     >
-      {isLoading ? 'Initializing...' : 'Start New Chat'}
+      {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Start New Chat'}
     </Button>
   );
 };

@@ -1,5 +1,6 @@
-import React, { useState, useEffect , useCallback} from 'react';
-import { Typography, Container, Grid, CircularProgress } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Typography, Container, Grid, CircularProgress, Paper, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import StartChat from '../../components/Chat/StartChat';
 import Chat from '../Chat';
 import EndChat from '../../components/Chat/EndChat';
@@ -12,6 +13,13 @@ import {
   endSession,
 } from '../../api/sessions';
 
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+}));
+
 const HomeChat = () => {
   const [chatStarted, setChatStarted] = useState(false);
   const [socket, setSocket] = useState(null);
@@ -21,7 +29,6 @@ const HomeChat = () => {
   const [refreshSessionList, setRefreshSessionList] = useState(0);
 
   useEffect(() => {
-    // Initialize the socket connection
     initializeSocket()
       .then((socketInstance) => {
         setSocket(socketInstance);
@@ -65,15 +72,14 @@ const HomeChat = () => {
 
       setChatStarted(false);
       setRefreshSessionList(prev => prev + 1);
-
-      // Force an immediate refresh of the session list
+      
+      const socket = getSocket();
       socket.emit('getAllSessions');
-    }
-    catch (err) {
+    } catch (err) {
       setError('Error ending session');
       console.error('Error ending session:', err);
     }
-  }, [sessionId, socket]);
+  }, [sessionId]);
 
   const handleSessionSelect = (selectedSessionId) => {
     setSessionId(selectedSessionId);
@@ -98,28 +104,35 @@ const HomeChat = () => {
 
   return (
     <Container maxWidth="lg" style={{ marginTop: '50px' }}>
+      <Typography variant="h3" component="h1" gutterBottom align="center" style={{ marginBottom: '30px' }}>
+        Welcome to Our Chatbot
+      </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
-          <Typography variant="h5" gutterBottom>Sessions</Typography>
-          {socket && <SessionList onSessionSelect={handleSessionSelect} refreshTrigger={refreshSessionList} />}
+          <StyledPaper elevation={3}>
+            <Typography variant="h5" gutterBottom>Sessions</Typography>
+            {socket && <SessionList onSessionSelect={handleSessionSelect} refreshTrigger={refreshSessionList} />}
+          </StyledPaper>
         </Grid>
         <Grid item xs={12} md={8}>
-          {chatStarted ? (
-            <>
-              <Chat socket={socket} sessionId={sessionId} />
-              <EndChat onEndChat={handleEndChat} />
-            </>
-          ) : (
-            <>
-              <Typography variant="h3" component="h1" gutterBottom>
-                Welcome to Our Chatbot
-              </Typography>
-              <StartChat onStartChat={handleStartChat} />
-            </>
-          )}
+          <StyledPaper elevation={3}>
+            {chatStarted ? (
+              <>
+                <Box display="flex" justifyContent="flex-end" mb={2}>
+                  <EndChat onEndChat={handleEndChat} />
+                </Box>
+                <Chat socket={socket} sessionId={sessionId} />
+              </>
+            ) : (
+              <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                <StartChat onStartChat={handleStartChat} />
+              </Box>
+            )}
+          </StyledPaper>
         </Grid>
       </Grid>
     </Container>
   );
 };
+
 export default HomeChat;
