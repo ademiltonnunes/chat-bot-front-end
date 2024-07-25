@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 8080;
 const API_KEY = process.env.API_KEY;
 // Setting up time out for the chat
 const SESSION_TIMEOUT = parseInt(process.env.SESSION_TIMEOUT, 10) || 30;
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
 
 // Create a server to serve the frontend
 const app = express();
@@ -20,7 +21,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     // Allow the frontend to connect to the WebSocket server
-    origin: "http://localhost:3000",
+    origin: CLIENT_ORIGIN,
     methods: ["GET", "POST"]
   }
 });
