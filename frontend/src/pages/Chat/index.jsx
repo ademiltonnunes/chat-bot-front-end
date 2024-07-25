@@ -9,13 +9,25 @@ const Chat = ({ socket, sessionId }) => {
   const handshakeSent = useRef(false);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !sessionId) return;
     
     if (!handshakeSent.current) {
       console.log('Sending handshake');
       socket.emit('handshake', sessionId);
       handshakeSent.current = true;
     }
+
+    // Load messages for the selected session
+    socket.emit('loadSessionMessages', sessionId);
+
+    const handleSessionMessages = ({ sessionId: loadedSessionId, messages: loadedMessages }) => {
+      if (loadedSessionId === sessionId) {
+        setMessages(loadedMessages.map(msg => ({
+          ...msg,
+          direction: msg.sender === 'ChatGPT' ? 'incoming' : 'outgoing'
+        })));
+      }
+    };
 
     // Define the handler function for incoming messages
     const handleMessage = (msg) => {
@@ -28,15 +40,17 @@ const Chat = ({ socket, sessionId }) => {
       setTyping(false);
     };
 
-    // Attach the event listener
+    // Attach the event listeners
+    socket.on('sessionMessages', handleSessionMessages);
     socket.on('message', handleMessage);
 
-    // Cleanup function to remove the event listener
+    // Cleanup function to remove the event listeners
     return () => {
+      socket.off('sessionMessages', handleSessionMessages);
       socket.off('message', handleMessage);
     };
     
-  }, [socket]);
+  }, [socket, sessionId]);
 
   const handleSend = async (message) => {
     const newMessage = {

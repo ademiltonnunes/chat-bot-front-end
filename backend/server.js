@@ -12,7 +12,7 @@ dotenv.config();
 const PORT = process.env.PORT || 8080;
 const API_KEY = process.env.API_KEY;
 // Setting up time out for the chat
-const SESSION_TIMEOUT = process.env.SESSION_TIMEOUT || 30;
+const SESSION_TIMEOUT = parseInt(process.env.SESSION_TIMEOUT, 10) || 30;
 
 // Create a server to serve the frontend
 const app = express();
@@ -106,37 +106,74 @@ io.on('connection', (socket) => {
 
   // Listen to incoming messages
   socket.on('message', async (sessionId, msg) => {
-    if (!sessions[sessionId]) {
-      console.log('Session not found - messaging');
-      socket.emit('error', { message: 'Session not found' });
-      return;
+    try{
+      if (!sessions[sessionId]) {
+        console.log('Session not found - messaging');
+        socket.emit('error', { message: 'Session not found' });
+        return;
+      }
+  
+      // Store the message
+      sessions[sessionId].messages.push(msg);
+      console.log('Received message:', msg.message);
+  
+      // Process message to ChatGPT
+      const response = await processMessage(msg);
+  
+      // Get the response message
+      const responseMessage = {
+        message: response,
+        date: new Date(),
+        sender: 'ChatGPT'
+      };
+  
+      // Store the response
+      sessions[sessionId].messages.push(responseMessage);
+  
+      io.emit('message', responseMessage);
+
     }
-
-    // Store the message
-    sessions[sessionId].messages.push(msg);
-    console.log('Received message:', msg.message);
-
-    // Process message to ChatGPT
-    const response = await processMessage(msg);
-
-    // Get the response message
-    const responseMessage = {
-      message: response,
-      date: new Date(),
-      sender: 'ChatGPT'
-    };
-
-    // Store the response
-    sessions[sessionId].messages.push(responseMessage);
-
-    io.emit('message', responseMessage);
+    catch(err){
+      console.error('Error processing message:', err);
+      socket.emit('error', { message: 'Error processing your message' });
+    }
+    
   });
+
+
+  // Getting all sessions
+  socket.on('getAllSessions', () => {
+    const activeSessions = {};
+    const endedSessions = {};
+
+    Object.entries(sessions).forEach(([id, session]) => {
+      if (session.endTime) {
+        endedSessions[id] = session;
+      } else {
+        activeSessions[id] = session;
+      }
+    });
+
+    socket.emit('allSessions', { activeSessions, endedSessions });
+  });
+
+  // Loading session messages
+  socket.on('loadSessionMessages', (sessionId) => {
+    const session = sessions[sessionId];
+    if (session) {
+      socket.emit('sessionMessages', { sessionId, messages: session.messages });
+    } else {
+      socket.emit('error', { message: 'Session not found' });
+    }
+  });
+
+
+
 });
 
 app.get('/sessions', (req, res) => {
   res.json(sessions);
 });
-
 
 
 const processMessage = async (chatMessage) => {
@@ -166,6 +203,10 @@ const processMessage = async (chatMessage) => {
       },
       body: JSON.stringify(apiRequestBody)
     });
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
 
     const data = await response.json();
     return data.choices[0]?.message?.content || 'No response from API';
